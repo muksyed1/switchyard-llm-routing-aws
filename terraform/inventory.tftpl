@@ -1,0 +1,12 @@
+[gateway_nodes]
+demo-gateway ansible_host=${gateway_ip}
+
+[model_nodes]
+%{for name, inst in models ~}
+${name} ansible_host=${inst.public_ip} ollama_model="${inst.tags.Model}" private_ip=${inst.private_ip}
+%{ endfor ~}
+
+[all:vars]
+ansible_user="ubuntu"
+ansible_ssh_private_key_file="~/.ssh/accenture_demo"
+ansible_ssh_common_args="-o StrictHostKeyChecking=accept-new"

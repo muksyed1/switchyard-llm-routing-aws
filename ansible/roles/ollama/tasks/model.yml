@@ -1,0 +1,18 @@
+---
+
+- name: Wait for Ollama port to accept connections
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: "{{ service_port }}"
+    state: started
+    delay: 3        # Number of seconds to wait before first check
+    timeout: 60     # Maximum seconds to wait before failing
+
+- name: "Check if Ollama model is installed"
+  command: "{{ install_dir }}/bin/ollama list"
+  register:  model_list
+  changed_when: false
+
+- name: "Pull Ollama model"
+  command: "{{ install_dir }}/bin/ollama pull {{ ollama_model }}"
+  when: ollama_model not in model_list.stdout

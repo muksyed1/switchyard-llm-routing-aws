@@ -1,0 +1,11 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/monitoring
+- ansible.builtin.import_tasks: docker.yml
+  tags: docker
+- ansible.builtin.import_tasks: prometheus_setup.yml
+  tags: prometheus
+- ansible.builtin.import_tasks: grafana_setup.yml
+  tags: grafana
+- ansible.builtin.import_tasks: docker_compose.yml
+  tags: [prometheus, grafana, compose]

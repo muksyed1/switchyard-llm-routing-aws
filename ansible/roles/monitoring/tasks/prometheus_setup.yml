@@ -1,0 +1,17 @@
+
+- name: "Create directories"
+  ansible.builtin.file:
+    path: "{{ prometheus_dir }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0755'
+  
+- name: "Create Prometheus config "
+  ansible.builtin.template:
+    src: "prometheus_setup.j2"
+    dest: "{{ prometheus_dir }}/prometheus.yml"
+    owner: "root"
+    group: "root"
+    mode: '0644'
+  notify: Restart Prometheus

@@ -1,0 +1,13 @@
+[Unit]
+Description=Switchyard Service
+After=network-online.target
+
+[Service]
+ExecStart={{ bin_dir }}/switchyard-server --config {{ config_dir }}/routes.toml --host 0.0.0.0 --port {{ service_port }}
+User={{ user_name }}
+Group={{ group_name }}
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

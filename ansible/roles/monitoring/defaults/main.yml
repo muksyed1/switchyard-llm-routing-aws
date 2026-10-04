@@ -1,0 +1,12 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/monitoring
+
+# docker
+compose_package: docker-compose-v2
+
+# monitoring 
+monitoring_dir: "/opt/monitoring"
+prometheus_dir: "{{ monitoring_dir }}/prometheus"
+grafana_dir: "{{ monitoring_dir }}/grafana"
+switchyard_port: "4000"

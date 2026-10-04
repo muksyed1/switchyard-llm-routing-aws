@@ -1,0 +1,27 @@
+schema_version = 1
+
+{# ---------- one client + one target per model node ---------- #}
+{% for host in groups['model_nodes'] %}
+[llm_clients.{{ host }}]
+format = "openai_chat"
+base_url = "http://{{ hostvars[host].private_ip }}:11434/v1"
+
+[targets.{{ host }}]
+id = "{{ hostvars[host].ollama_model }}"
+llm_client = "{{ host }}"
+
+{% endfor %}
+{# ---------- routes: the "model" names callers can request ---------- #}
+[routes.smart]
+id = "switchyard"
+type = "auto"
+capable_target = "{{ capable_target }}"
+efficient_target = "{{ efficient_target }}"
+
+{% for host in groups['model_nodes'] %}
+[routes.{{ host }}]
+id = "{{ host }}"
+type = "passthrough"
+target = "{{ host }}"
+
+{% endfor %}

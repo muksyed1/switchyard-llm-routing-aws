@@ -1,0 +1,16 @@
+- name: "Create Grafana provisioning directory"
+  ansible.builtin.file:
+    path: "{{ grafana_dir }}/provisioning/datasources"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: "Template Grafana Prometheus datasource"
+  ansible.builtin.template:
+    src: grafana_datasource.j2
+    dest: "{{ grafana_dir }}/provisioning/datasources/prometheus.yml"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Grafana

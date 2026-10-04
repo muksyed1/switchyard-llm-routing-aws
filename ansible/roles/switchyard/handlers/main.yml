@@ -1,0 +1,11 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for roles/switchyard
+- name: "Reload systemd daemon"
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: "Restart Switchyard"
+  ansible.builtin.service:
+    name: "{{ user_name }}"
+    state: restarted

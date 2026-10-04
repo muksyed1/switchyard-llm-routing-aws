@@ -1,0 +1,13 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/switchyard
+user_name: "switchyard"
+group_name: "switchyard"
+config_dir: "/opt/switchyard/etc"
+install_dir: "/opt/switchyard"
+bin_dir: "/opt/switchyard/bin"
+service_port: "4000"
+
+# model targets:
+capable_target: "demo-model-nemotron"
+efficient_target: "demo-model-llama"

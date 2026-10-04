@@ -1,0 +1,14 @@
+[Unit]
+Description=Ollama Service
+After=network-online.target
+
+[Service]
+ExecStart={{ install_dir }}/bin/ollama serve
+User={{ user_name }}
+Group={{ group_name }}
+Restart=always
+RestartSec=3
+Environment="OLLAMA_HOST=0.0.0.0:{{ service_port }}"
+
+[Install]
+WantedBy=multi-user.target

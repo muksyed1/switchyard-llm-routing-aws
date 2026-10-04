@@ -1,0 +1,9 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/ollama
+user_name: "ollama"
+group_name: "ollama"
+download_url: "https://ollama.com/download"
+download_file: "ollama-linux-amd64.tar.zst"
+install_dir: "/opt/ollama"
+service_port: "11434"

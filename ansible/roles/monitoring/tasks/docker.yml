@@ -1,0 +1,13 @@
+- name: "Install docker-compose"
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - "{{ compose_package }}"
+    state: present
+    update_cache: true
+
+- name: Ensure Docker service is started and enabled
+  ansible.builtin.systemd_service:
+    name: docker
+    state: started
+    enabled: true

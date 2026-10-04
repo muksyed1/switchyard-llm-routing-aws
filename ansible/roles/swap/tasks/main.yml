@@ -1,0 +1,32 @@
+---
+
+- name: "Create swapfile with set size"
+  command: "fallocate -l {{ swap_size }} /swapfile"
+  register: swap_create
+  args:
+    creates: /swapfile
+
+- name: "Permissions of file"
+  ansible.builtin.file:
+    path: "/swapfile"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: "Format swapfile"
+  command: "mkswap /swapfile"
+  when: swap_create is changed
+  register: swap_format
+
+- name: "Turn On swapfile"
+  command: "swapon /swapfile"
+  when: swap_format is changed
+
+- name: "Add swapfile to /etc/fstab"
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '^/swapfile\s'
+    line: '/swapfile none swap sw 0 0'
+    state: present
+    create: yes
+    mode: '0644'

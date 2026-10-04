@@ -1,0 +1,73 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/ollama
+
+- name:  "Download Ollama for Ubuntu"
+  ansible.builtin.get_url:
+    url: "{{ download_url }}/{{ download_file }}"
+    dest: "/usr/local/src/{{ download_file }}"
+    mode: '0644'
+    owner: root
+    group: root
+
+# Create User and Group ollama
+- name: "Create Group Ollama"
+  ansible.builtin.group:
+    name: "{{ group_name }}"
+    state: present
+
+- name: "Create User Ollama"
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    state: present
+    shell: "/usr/sbin/nologin"
+    group: "{{ group_name }}"
+    system: true
+    
+- name: "Create Install directory"
+  ansible.builtin.file:
+    path: "{{ install_dir }}"
+    state: directory
+    owner: "{{ user_name }}"
+    group: "{{ group_name }}"
+    mode: '0775'
+
+- name: "Ensure zstd is installed on the managed host"
+  ansible.builtin.apt:
+    name: zstd
+    state: present
+    update_cache: yes
+
+# Unarchive the package in /opt/
+- name: "Unarchive the Ollama Package:"
+  ansible.builtin.unarchive:
+    src: "/usr/local/src/{{ download_file }}"
+    dest: "{{ install_dir }}"
+    remote_src: true
+    creates: "{{ install_dir }}/bin/ollama"
+
+# Create Systemd Service
+- name: "Create SystemD Ollama Service"
+  ansible.builtin.template:
+    src: "{{ user_name }}_systemd.j2"
+    dest: /etc/systemd/system/{{ user_name }}.service
+    owner: "root"
+    group: "root"
+    mode: '0644'
+  notify:
+      - Reload systemd daemon
+      - Restart Ollama
+
+# Flush Handler
+- name: Force a quick handler execution if template changed
+  ansible.builtin.meta: flush_handlers
+
+# "Enable and Start"
+- name: "Enable and Start Ollama"
+  ansible.builtin.systemd_service:
+    name: "{{ user_name }}"
+    state: started
+    enabled: true
+
+
+

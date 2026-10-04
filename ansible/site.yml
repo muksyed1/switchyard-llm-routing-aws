@@ -1,0 +1,29 @@
+---
+- name: "All Roles"
+  hosts: all
+  become: true
+
+  roles:
+    - swap
+  tags: always
+
+- name: "Model Roles"
+  hosts: model_nodes
+  become: true
+
+  roles: 
+    - ollama
+  tags: model_roles
+
+- name: "Gateway Roles"
+  hosts: gateway_nodes
+  become: true
+
+  roles: 
+    - { role: switchyard, tags: switchyard }
+    - { role: monitoring, tags: monitoring }
+  tags: gateway_roles
+
+
+  
+

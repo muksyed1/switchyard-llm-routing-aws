@@ -1,0 +1,10 @@
+**/.terraform/
+**/terraform.tfstate*
+**/crash.log
+**/.DS_Store
+**/*.pem
+**/*.key
+**/tfplan
+**/*.tfvars
+**/inventory.ini*
+**/switchyard/files/*
