@@ -1,0 +1,6 @@
+# Default owner for everything
+*               @muksyed1
+
+# Owners per area (in a team, these would be different people or teams)
+/terraform/     @muksyed1
+/ansible/       @muksyed1
