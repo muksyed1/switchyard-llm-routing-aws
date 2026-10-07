@@ -6,7 +6,7 @@ services:
       ports: 
         - "9090:9090"
       volumes:
-        - "{{ prometheus_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+        - "{{ prometheus_dir }}:/etc/prometheus:ro"
         - prometheus_data:/prometheus
 
   grafana:
@@ -16,7 +16,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - "{{ grafana_dir }}/provisioning/datasources:/etc/grafana/provisioning/datasources:ro"
+      - "{{ grafana_dir }}/provisioning:/etc/grafana/provisioning:ro"
+      - "{{ grafana_dir }}/dashboards:/var/lib/grafana/dashboards:ro"
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus

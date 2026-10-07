@@ -1,0 +1,67 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for ansible/roles/node_exporter
+
+- name:  "Download Node Exporter for Ubuntu"
+  ansible.builtin.get_url:
+    url: "{{ download_url }}/{{ download_file }}"
+    dest: "/usr/local/src/{{ download_file }}"
+    mode: '0644'
+    owner: root
+    group: root
+
+# Create User and Group Node Exporter
+- name: "Create Group Node Exporter"
+  ansible.builtin.group:
+    name: "{{ group_name }}"
+    state: present
+
+- name: "Create User Node Exporter"
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    state: present
+    shell: "/usr/sbin/nologin"
+    group: "{{ group_name }}"
+    system: true
+    
+- name: "Create Install directory"
+  ansible.builtin.file:
+    path: "{{ install_dir }}"
+    state: directory
+    owner: "{{ user_name }}"
+    group: "{{ group_name }}"
+    mode: '0775'
+
+# Unarchive the package in /opt/
+- name: "Unarchive the Node Exporter Package:"
+  ansible.builtin.unarchive:
+    src: "/usr/local/src/{{ download_file }}"
+    dest: "{{ install_dir }}"
+    remote_src: true
+    owner: "root"
+    group: "root"
+    creates: "{{ install_dir }}/{{ user_name }}"
+    extra_opts: [--strip-components=1]
+
+# Create Systemd Service
+- name: "Create SystemD Node Exporter Service"
+  ansible.builtin.template:
+    src: "{{ user_name }}_systemd.j2"
+    dest: /etc/systemd/system/{{ user_name }}.service
+    owner: "root"
+    group: "root"
+    mode: '0644'
+  notify:
+      - Reload systemd daemon
+      - Restart Node Exporter
+
+# Flush Handler
+- name: Force a quick handler execution if template changed
+  ansible.builtin.meta: flush_handlers
+
+# "Enable and Start"
+- name: "Enable and Start Node Exporter"
+  ansible.builtin.systemd_service:
+    name: "{{ user_name }}"
+    state: started
+    enabled: true

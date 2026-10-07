@@ -1,0 +1,10 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for ansible/roles/node_exporter
+user_name: "node_exporter"
+group_name: "node_exporter"
+version: "1.12.1"
+download_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ version }}"
+download_file: "node_exporter-{{ version }}.linux-amd64.tar.gz"
+install_dir: "/opt/node_exporter"
+service_port: "9100"
