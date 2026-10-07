@@ -8,3 +8,4 @@
 **/*.tfvars
 **/inventory.ini*
 **/switchyard/files/*
+BUILD_LOG.md

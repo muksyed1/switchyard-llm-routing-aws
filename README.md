@@ -73,7 +73,6 @@ ansible/     site.yml + roles:
                monitoring  Docker, Prometheus, Grafana (data source provisioned as code), dashboard JSON
 loadgen/     loadgen.sh: mixed easy/hard prompts across all routes
 docs/        architecture diagram (draw.io + PNG)
-BUILD_LOG.md what was built, decisions, lessons learned, and measurements
 ```
 
 ## Running it
