@@ -14,7 +14,7 @@ Infrastructure is provisioned with **Terraform**; every server is configured wit
 ## What it shows
 
 ## Screenshots
-![Grafana dashboard under load](docs/loadgen-output-nvidia-llm.png)
+![Grafana dashboard under load](docs/screenshots/loadgen-output-nvidia-llm.png)
 
 
 - **LLM request routing.** Clients call one OpenAI-compatible endpoint. Switchyard either lets its router
