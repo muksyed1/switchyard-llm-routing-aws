@@ -13,12 +13,6 @@ Infrastructure is provisioned with **Terraform**; every server is configured wit
 
 ## What it shows
 
-## Screenshots
-![Grafana dashboard under load](docs/screenshots/loadgen-output-nvidia-llm.png)
-
-### Demo: load generator + live Grafana dashboard
-https://github.com/user-attachments/assets/c84605bc-b247-43ad-9817-682b50deb9bc
-
 - **LLM request routing.** Clients call one OpenAI-compatible endpoint. Switchyard either lets its router
   choose the model (`auto` route) or sends the request to a specific model (`passthrough` routes).
 - **Infrastructure as code, end to end.** One `terraform apply` and one `ansible-playbook` rebuild the whole stack
@@ -27,16 +21,25 @@ https://github.com/user-attachments/assets/c84605bc-b247-43ad-9817-682b50deb9bc
   Ansible inventory, and Switchyard's routing configuration.
 - **Least-privilege security.** Model endpoints are reachable only from the gateway's security group over private
   IPs; admin ports are open only to the operator's (auto-detected) IP.
-- **Observability.** Per-model requests, token throughput, latency, errors, and routing decisions.
+- **Observability.** Per-model requests, token throughput, latency, errors, and routing decisions, alongside
+  CPU and memory for every host (node_exporter). The data source and dashboards are provisioned as code.
+
+## Screenshots
+
+![Grafana dashboard under load](docs/screenshots/loadgen-output-nvidia-llm.png)
+
+### Demo: load generator + live Grafana dashboard
+
+https://github.com/user-attachments/assets/c84605bc-b247-43ad-9817-682b50deb9bc
 
 ## Components
 
 | Host | Instance type | Runs |
 |---|---|---|
-| `demo-gateway` | t3.small | Switchyard (`:4000`), Prometheus (`:9090`) and Grafana (`:3000`) in Docker Compose |
-| `demo-model-nemotron` | m7i-flex.large | Ollama (`:11434`) + `nemotron-mini` |
-| `demo-model-llama` | m7i-flex.large | Ollama (`:11434`) + `llama3.2:3b` |
-| `demo-model-qwen` | m7i-flex.large | Ollama (`:11434`) + `qwen3:4b` |
+| `demo-gateway` | t3.small | Switchyard (`:4000`), Prometheus (`:9090`) and Grafana (`:3000`) in Docker Compose, node_exporter (`:9100`) |
+| `demo-model-nemotron` | m7i-flex.large | Ollama (`:11434`) + `nemotron-mini`, node_exporter (`:9100`) |
+| `demo-model-llama` | m7i-flex.large | Ollama (`:11434`) + `llama3.2:3b`, node_exporter (`:9100`) |
+| `demo-model-qwen` | m7i-flex.large | Ollama (`:11434`) + `qwen3:4b`, node_exporter (`:9100`) |
 
 Ubuntu 24.04 (latest Canonical AMI, looked up by owner ID), default VPC, `us-west-2`. CPU only, no GPUs.
 
@@ -46,14 +49,15 @@ Ubuntu 24.04 (latest Canonical AMI, looked up by owner ID), default VPC, `us-wes
    `"model"` set to a **route** name: `switchyard` (auto) or `demo-model-llama` / `-nemotron` / `-qwen`.
 2. Switchyard picks a target and forwards the request to that node's **private IP** on port 11434 (`/v1`).
 3. Ollama generates the answer; Switchyard returns it and records metrics (requests, tokens, latency, routing decision).
-4. Prometheus scrapes Switchyard's `/metrics` every 15 s; Grafana queries Prometheus.
+4. Prometheus scrapes Switchyard's `/metrics` and node_exporter on every host every 15 s, labelling each target
+   with its inventory host name; Grafana queries Prometheus.
 
 ## Security design
 
 | Security group | Inbound | From |
 |---|---|---|
 | Gateway | 22, 3000, 4000, 9090 | operator's IP only (looked up at apply time) |
-| Model nodes | 11434 (Ollama), 9100 (reserved for node_exporter) | **gateway security group only** |
+| Model nodes | 11434 (Ollama), 9100 (node_exporter) | **gateway security group only** |
 | Model nodes | 22 | operator's IP only |
 | Egress (all instances) | all outbound | needed for packages and model downloads |
 
@@ -67,10 +71,11 @@ config files owned by root.
 terraform/   provider + pinned versions, AMI/VPC/IP lookups, key pair, security groups,
              instances (for_each over the model map), outputs, Ansible inventory template
 ansible/     site.yml + roles:
-               swap        swap file on every host
-               ollama      Ollama service + model pull (one role, per-host model from the inventory)
-               switchyard  binary, templated routes.toml (validated before install), systemd unit
-               monitoring  Docker, Prometheus, Grafana (data source provisioned as code), dashboard JSON
+               swap           swap file on every host
+               node_exporter  host metrics on every host (systemd service, port 9100)
+               ollama         Ollama service + model pull (one role, per-host model from the inventory)
+               switchyard     binary, templated routes.toml (validated before install), systemd unit
+               monitoring     Docker, Prometheus, Grafana; data source and dashboards provisioned as code
 loadgen/     loadgen.sh: mixed easy/hard prompts across all routes
 docs/        architecture diagram (draw.io + PNG)
 ```
@@ -112,8 +117,9 @@ curl http://<gateway-ip>:4000/v1/chat/completions -H "Content-Type: application/
 ./loadgen/loadgen.sh                           # continuous mixed load; Ctrl+C to stop
 ```
 
-Grafana: `http://<gateway-ip>:3000`. Import the dashboard from
-`ansible/roles/monitoring/files/dashboards/` (Dashboards → New → Import).
+Grafana: `http://<gateway-ip>:3000` → **Dashboards → Demo**: *Switchyard Demo* and *Node Exporter Full* are
+provisioned automatically from `ansible/roles/monitoring/files/dashboards/`. Provisioned dashboards are read-only
+in the UI: to change one, edit it, export it as JSON (Model: **Classic**, "sharing externally" off), and commit the file.
 
 ### Tear down
 
@@ -134,12 +140,16 @@ the operator-IP security rules.
   (head-of-line blocking).
 - **Reasoning models cost more on easy work.** `qwen3:4b` used ~190 "thinking" tokens to answer "hello", and an
   easy prompt hit the 256-token cap in 164 s. This is the case for routing easy requests to smaller models.
+- **Host metrics explain part of the latency.** The model nodes' CPU flat-lines at 50%. Each m7i-flex.large has
+  2 vCPUs (one physical core plus a hyperthread), and Ollama appears to use one thread per physical core, so one
+  vCPU sits idle. This is only visible with host and model metrics on the same dashboard.
 
 ## Next steps
 
-- node_exporter on every host (port 9100 is already allowed from the gateway) to correlate latency with CPU saturation
-- Provision the Grafana dashboard automatically, like the data source
+- Verify the 50% CPU ceiling (`top`, per-CPU view) and tune Ollama's `num_thread`; compare tokens/s
 - Try `llm_classifier` routing for chat traffic, and a `random` route across replicas for load spreading
+- GitHub Actions CI (terraform fmt/validate, ansible syntax-check, shellcheck) as a required check on `main`
+- One-command `make up` / `make down` wrapper around Terraform + Ansible
 - Download the Switchyard binary from an artifact store (built by CI) instead of copying it from the operator's machine
 - GPU instances for production-grade latency
 
