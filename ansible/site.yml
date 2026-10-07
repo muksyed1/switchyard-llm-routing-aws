@@ -5,6 +5,7 @@
 
   roles:
     - swap
+    - node_exporter
   tags: always
 
 - name: "Model Roles"

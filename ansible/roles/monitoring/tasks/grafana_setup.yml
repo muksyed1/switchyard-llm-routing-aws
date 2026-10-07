@@ -1,15 +1,46 @@
-- name: "Create Grafana provisioning directory"
+- name: "Create Grafana dashboard directory"
   ansible.builtin.file:
-    path: "{{ grafana_dir }}/provisioning/datasources"
+    path: "{{ grafana_dir }}/dashboards"
     state: directory
     owner: root
     group: root
     mode: '0755'
 
-- name: "Template Grafana Prometheus datasource"
+- name: "Create Grafana Provisioning Directories"
+  ansible.builtin.file:
+    path: "{{ grafana_dir }}/provisioning/{{ dirs }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - dashboards
+    - datasources
+  loop_control:
+      loop_var: dirs
+
+- name: "Template Grafana Prometheus Datasource"
   ansible.builtin.template:
     src: grafana_datasource.j2
     dest: "{{ grafana_dir }}/provisioning/datasources/prometheus.yml"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Grafana
+
+- name: "Template Grafana Dashboard Provider"
+  ansible.builtin.template:
+    src: grafana_dashboards_provider.j2
+    dest: "{{ grafana_dir }}/provisioning/dashboards/grafana_dashboard_provider.yml"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Grafana
+
+- name: "Copy Dashboard Files"
+  ansible.builtin.copy:
+    src: dashboards/
+    dest: "{{ grafana_dir }}/dashboards"
     owner: root
     group: root
     mode: '0644'

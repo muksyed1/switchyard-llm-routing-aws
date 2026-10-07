@@ -1,0 +1,13 @@
+[Unit]
+Description={{ user_name }} Service
+After=network-online.target
+
+[Service]
+ExecStart={{ install_dir }}/{{ user_name }} --web.listen-address=:{{ service_port }}
+User={{ user_name }}
+Group={{ group_name }}
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
