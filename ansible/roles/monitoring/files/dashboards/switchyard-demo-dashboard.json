@@ -1,4 +1,33 @@
 {
+  "uid": "ad8tn4t",
+  "title": "Switchyard Demo",
+  "tags": [],
+  "editable": true,
+  "schemaVersion": 41,
+  "version": 1,
+  "graphTooltip": 0,
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "refresh": "5s",
+  "timezone": "browser",
+  "templating": {
+    "list": [
+      {
+        "type": "textbox",
+        "name": "price_per_hour",
+        "label": "Node $/hour",
+        "query": "0.09576",
+        "current": {
+          "text": "0.09576",
+          "value": "0.09576"
+        },
+        "hide": 0,
+        "skipUrlSync": false
+      }
+    ]
+  },
   "annotations": {
     "list": [
       {
@@ -15,16 +44,22 @@
       }
     ]
   },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
+      "id": 1,
+      "type": "timeseries",
+      "title": "CPU busy % per node",
+      "description": "",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
@@ -81,13 +116,6 @@
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 0
-      },
-      "id": 7,
       "options": {
         "legend": {
           "calcs": [],
@@ -101,9 +129,9 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.2.3",
       "targets": [
         {
+          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
@@ -111,17 +139,26 @@
           "editorMode": "code",
           "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100)",
           "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "range": true
         }
       ],
-      "title": "CPU busy % per node",
-      "type": "timeseries"
+      "transformations": [],
+      "pluginVersion": "13.2.3"
     },
     {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Memory used % per node",
+      "description": "",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
@@ -132,7 +169,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "",
+            "axisLabel": "% used",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
@@ -178,17 +215,11 @@
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "id": 8,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
+          "enableFacetedFilter": false,
           "placement": "bottom",
           "showLegend": true
         },
@@ -198,27 +229,36 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.2.3",
       "targets": [
         {
+          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
           "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "legendFormat": "{{instance}}",
+          "range": true
         }
       ],
-      "title": "Memory used % per node",
-      "type": "timeseries"
+      "transformations": [],
+      "pluginVersion": "13.2.3"
     },
     {
+      "id": 3,
+      "type": "stat",
+      "title": "output tokens used in the selected time range",
+      "description": "",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
       },
       "fieldConfig": {
         "defaults": {
@@ -241,13 +281,6 @@
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
-      },
-      "id": 6,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -265,9 +298,9 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.2.3",
       "targets": [
         {
+          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
@@ -275,19 +308,27 @@
           "editorMode": "code",
           "expr": "sum by (model) (increase(switchyard_completion_tokens_total[$__range]))",
           "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "range": true
         }
       ],
-      "title": "output tokens used in the selected time range",
-      "type": "stat"
+      "transformations": [],
+      "pluginVersion": "13.2.3"
     },
     {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Tokens/s in / out per model",
+      "description": "query: \"sum by (model) (rate(switchyard_completion_tokens_total[1m]))\"",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "query: \"sum by (model) (rate(switchyard_completion_tokens_total[1m]))\"",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -343,13 +384,6 @@
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 8
-      },
-      "id": 2,
       "options": {
         "legend": {
           "calcs": [],
@@ -363,9 +397,9 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.2.3",
       "targets": [
         {
+          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
@@ -373,10 +407,10 @@
           "editorMode": "code",
           "expr": "sum by (model) (rate(switchyard_completion_tokens_total[1m]))",
           "legendFormat": "{{model}} out",
-          "range": true,
-          "refId": "A"
+          "range": true
         },
         {
+          "refId": "B",
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
@@ -385,57 +419,31 @@
           "expr": "sum by (model) (rate(switchyard_prompt_tokens_total[1m]))",
           "instant": false,
           "legendFormat": "{{model}} in",
-          "range": true,
-          "refId": "B"
+          "range": true
         }
       ],
-      "title": "Tokens/s in / out per model",
-      "type": "timeseries"
+      "transformations": [],
+      "pluginVersion": "13.2.3"
     },
     {
+      "id": 5,
+      "type": "bargauge",
+      "title": "Cost per 1M Output tokens ($/M tokens)",
+      "description": "",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "query - \"sum by (model) (rate(switchyard_requests_total[1m]))\"",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "thresholds": {
             "mode": "absolute",
@@ -449,53 +457,66 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "currencyUSD"
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 16
-      },
-      "id": 1,
       "options": {
+        "displayMode": "gradient",
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
       },
-      "pluginVersion": "13.2.3",
       "targets": [
         {
+          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (model) (rate(switchyard_requests_total[1m]))",
+          "expr": "($price_per_hour / 3600) / (sum by (model) (rate(switchyard_completion_tokens_total[5m])) > 0) * 1e6",
           "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "range": true
         }
       ],
-      "title": "Requests/s per model",
-      "type": "timeseries"
+      "transformations": [],
+      "pluginVersion": "13.2.3"
     },
     {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Routing decisions",
+      "description": "query - \"sum by (algorithm, selected_model) (rate(switchyard_decisions_total[5m]))\"",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "query - \"sum by (algorithm, selected_model) (rate(switchyard_decisions_total[5m]))\"",
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -551,13 +572,6 @@
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 16
-      },
-      "id": 5,
       "options": {
         "legend": {
           "calcs": [],
@@ -571,9 +585,9 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.2.3",
       "targets": [
         {
+          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
@@ -581,19 +595,27 @@
           "editorMode": "code",
           "expr": "sum by (algorithm, selected_model) (rate(switchyard_decisions_total[5m]))",
           "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "range": true
         }
       ],
-      "title": "Routing decisions",
-      "type": "timeseries"
+      "transformations": [],
+      "pluginVersion": "13.2.3"
     },
     {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Requests/s per model",
+      "description": "query - \"sum by (model) (rate(switchyard_requests_total[1m]))\"",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "query - \"sum by (model) (rate(switchyard_model_call_latency_ms_sum[5m])) / sum by (model) (rate(switchyard_model_call_latency_ms_count[5m]))\"",
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 12,
+        "h": 8
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -649,13 +671,6 @@
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 24
-      },
-      "id": 3,
       "options": {
         "legend": {
           "calcs": [],
@@ -669,29 +684,37 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.2.3",
       "targets": [
         {
+          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (model) (rate(switchyard_model_call_latency_ms_sum[5m])) / sum by (model) (rate(switchyard_model_call_latency_ms_count[5m]))",
+          "expr": "sum by (model) (rate(switchyard_requests_total[1m]))",
           "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "range": true
         }
       ],
-      "title": "Avg latency per model (ms)",
-      "type": "timeseries"
+      "transformations": [],
+      "pluginVersion": "13.2.3"
     },
     {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Errors/s",
+      "description": "query - \"sum by (outcome) (rate(switchyard_client_responses_total{outcome!=\"ok\"}[5m]))\"",
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "query - \"sum by (outcome) (rate(switchyard_client_responses_total{outcome!=\"ok\"}[5m]))\"",
+      "gridPos": {
+        "x": 12,
+        "y": 24,
+        "w": 12,
+        "h": 8
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -747,13 +770,6 @@
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 24
-      },
-      "id": 4,
       "options": {
         "legend": {
           "calcs": [],
@@ -767,9 +783,9 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.2.3",
       "targets": [
         {
+          "refId": "A",
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
@@ -777,67 +793,110 @@
           "editorMode": "code",
           "expr": "sum by (outcome) (rate(switchyard_client_responses_total{outcome!=\"ok\"}[5m]))",
           "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "range": true
         }
       ],
-      "title": "Errors/s",
-      "type": "timeseries"
+      "transformations": [],
+      "pluginVersion": "13.2.3"
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Avg latency per model (ms)",
+      "description": "query - \"sum by (model) (rate(switchyard_model_call_latency_ms_sum[5m])) / sum by (model) (rate(switchyard_model_call_latency_ms_count[5m]))\"",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 32,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum by (model) (rate(switchyard_model_call_latency_ms_sum[5m])) / sum by (model) (rate(switchyard_model_call_latency_ms_count[5m]))",
+          "legendFormat": "__auto",
+          "range": true
+        }
+      ],
+      "transformations": [],
+      "pluginVersion": "13.2.3"
     }
-  ],
-  "preload": false,
-  "refresh": "5s",
-  "schemaVersion": 42,
-  "tags": [],
-  "templating": {
-    "list": [
-      {
-        "allowCustomValue": true,
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "multi": false,
-        "name": "query0",
-        "options": [],
-        "query": {},
-        "refresh": 1,
-        "regex": "",
-        "regexApplyTo": "value",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      }
-    ]
-  },
-  "time": {
-    "from": "now-5m",
-    "to": "now"
-  },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ]
-  },
-  "timezone": "browser",
-  "title": "Switchyard Demo",
-  "weekStart": "",
-  "version": 7,
-  "uid": "ad8tn4t",
-  "id": 4481840392908800
+  ]
 }
