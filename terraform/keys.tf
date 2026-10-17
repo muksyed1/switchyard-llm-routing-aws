@@ -1,4 +1,4 @@
-resource "aws_key_pair" "accenture_demo" {
-  key_name   = "accenture_demo_key"
-  public_key = file(pathexpand(var.ssh_accenture_demo_public_key))
+resource "aws_key_pair" "switchyard_llm_routing_aws" {
+  key_name   = "switchyard_llm_routing_aws_key"
+  public_key = file(pathexpand(var.ssh_switchyard_llm_routing_aws_public_key))
 }

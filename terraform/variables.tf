@@ -4,10 +4,10 @@ variable "region" {
   type        = string
 }
 
-variable "ssh_accenture_demo_public_key" {
+variable "ssh_switchyard_llm_routing_aws_public_key" {
   type        = string
-  default     = "~/.ssh/accenture_demo.pub"
-  description = "The OpenSSH public key string used for Accenture Demo."
+  default     = "~/.ssh/switchyard_llm_routing_aws.pub"
+  description = "The OpenSSH public key string used for Switchyard LLM Routing AWS Demo."
 }
 
 variable "egress_cidr" {

@@ -16,6 +16,6 @@ terraform {
 }
 
 provider "aws" {
-  profile = "accenture-demo"
+  profile = "switchyard-llm-routing-aws"
   region  = var.region
 }

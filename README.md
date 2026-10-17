@@ -7,7 +7,7 @@ Every request is measured in **Prometheus** and visualised in **Grafana**.
 
 Infrastructure is provisioned with **Terraform**; every server is configured with **Ansible**.
 
-![Architecture](docs/accenture-demo-architecture.png)
+![Architecture](docs/switchyard-llm-routing-aws-architecture.png)
 
 ---
 
@@ -85,8 +85,8 @@ docs/        architecture diagram (draw.io + PNG)
 ### Prerequisites
 
 - Terraform, Ansible (with the `ansible.posix` collection), AWS CLI, `jq`
-- An AWS CLI profile named `accenture-demo` (set in `terraform/versions.tf`) with EC2 permissions
-- An SSH key pair at `~/.ssh/accenture_demo` / `~/.ssh/accenture_demo.pub` (`ssh-keygen -t ed25519 -f ~/.ssh/accenture_demo`)
+- An AWS CLI profile named `switchyard-llm-routing-aws` (set in `terraform/versions.tf`) with EC2 permissions
+- An SSH key pair at `~/.ssh/switchyard_llm_routing_aws` / `~/.ssh/switchyard_llm_routing_aws.pub` (`ssh-keygen -t ed25519 -f ~/.ssh/switchyard_llm_routing_aws`)
 - The Switchyard server binary at `ansible/roles/switchyard/files/switchyard-server`. It is not in Git (26 MB);
   see [`ansible/roles/switchyard/README.md`](ansible/roles/switchyard/README.md) for how to build it once.
 
