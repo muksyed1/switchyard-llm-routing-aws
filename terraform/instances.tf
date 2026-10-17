@@ -1,7 +1,7 @@
 resource "aws_instance" "demo_gateway" {
   ami                    = data.aws_ami.ubuntu_latest.id
   instance_type          = "t3.small"
-  key_name               = aws_key_pair.accenture_demo.key_name
+  key_name               = aws_key_pair.switchyard_llm_routing_aws.key_name
   vpc_security_group_ids = [aws_security_group.allow_egress_all.id, aws_security_group.allow_gateway_nodes.id]
   tags = {
     Name = "demo-gateway"
@@ -16,7 +16,7 @@ resource "aws_instance" "demo_model" {
   ami                    = data.aws_ami.ubuntu_latest.id
   instance_type          = "m7i-flex.large"
   for_each               = local.demo_models
-  key_name               = aws_key_pair.accenture_demo.key_name
+  key_name               = aws_key_pair.switchyard_llm_routing_aws.key_name
   vpc_security_group_ids = [aws_security_group.allow_egress_all.id, aws_security_group.allow_model_nodes.id]
   tags = {
     Name  = each.key
