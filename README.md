@@ -155,5 +155,6 @@ the operator-IP security rules.
 
 ## Cost
 
-Everything is torn down with `terraform destroy` after each session. Running all four instances costs roughly
+- Everything is torn down with `terraform destroy` after each session. Running all four instances costs roughly
 $0.30/hour plus EBS storage and public IPv4 addresses (us-west-2 on-demand pricing).
+- Real cost: the full stack ran about 28.5 hours in total and cost $9.69 (mostly 3 × m7i-flex.large at $0.09576/hr). The billed rate matched the dashboard's `price_per_hour`, so the cost-per-token panel reflects the real bill. Always `terraform destroy` after a session, and set an AWS Budget alert.
